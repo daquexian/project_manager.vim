@@ -4,6 +4,7 @@ endif
 
 let s:cwd = getcwd()
 let s:config_dir = s:cwd . '/.daq_pm/configs/'
+let s:status_dir = s:cwd . '/.daq_pm/status/'
 let s:status_file = s:cwd . '/.daq_pm/status/config'
 
 function s:read_config()
@@ -50,15 +51,26 @@ function s:read_config()
 endfunction
 
 function s:select_handler(line)
+    call mkdir(s:status_dir, 'p')
     call writefile([a:line], s:status_file)
     call s:read_config()
 endfunction
 
 function g:SelectConfig()
+    call mkdir(s:config_dir, 'p')
     call fzf#run({
                 \ 'dir': s:config_dir,
                 \ 'options': '+m',
                 \ 'sink': function('s:select_handler')})
 endfunction
 
+" NewConfig is still wip
+function g:NewConfig()
+    call mkdir(s:config_dir, 'p')
+    call mkdir(s:status_dir, 'p')
+endfunction
+
+noremap <Plug>SelectConfig :call SelectConfig()<CR>
+" NewConfig is still wip
+noremap <Plug>NewConfig :call NewConfig()<CR>
 noremap <Plug>SelectConfig :call SelectConfig()<CR>
