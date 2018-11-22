@@ -34,13 +34,14 @@ function s:read_config()
 
     if g:project_type ==? 'cpp' || g:project_type ==? 'c++'
         let g:cpp_project_props = {}
-        let g:cpp_project_props['target'] = s:props['target']
-        let g:cpp_project_props['build_dir'] = s:props['build_dir']
-        let g:cpp_project_props['cmake_options'] = s:props['cmake_options']
-        let g:cpp_project_props['program_arguments'] = s:props['program_arguments']
+        let g:cpp_project_props['build_type'] = get(s:props, 'build_type', 'Debug')
+        let g:cpp_project_props['target'] = get(s:props, 'target', 'all')
+        let g:cpp_project_props['build_dir'] = get(s:props, 'build_dir', 'build')
+        let g:cpp_project_props['cmake_options'] = get(s:props, 'cmake_options', '')
+        let g:cpp_project_props['program_arguments'] = get(s:props, 'program_arguments', '')
         function! g:Build()
             let l:escaped_cd = s:escape_for_texec('cd ' . s:cwd . '/' . g:cpp_project_props['build_dir'])
-            let l:escaped_cmake_opts = s:escape_for_texec('cmake ' . g:cpp_project_props['cmake_options'] . ' ..')
+            let l:escaped_cmake_opts = s:escape_for_texec('cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..')
             let l:escaped_cmake_build = s:escape_for_texec('cmake --build . --target ' . g:cpp_project_props['target'])
             execute 'bo Topen'
             execute 'bo Texec ' . l:escaped_cd . ' ' . l:escaped_cmake_opts . ' ' . l:escaped_cmake_build
@@ -68,6 +69,15 @@ endfunction
 function g:NewConfig()
     call mkdir(s:config_dir, 'p')
     call mkdir(s:status_dir, 'p')
+    
+    let text  = ["name <project_name>"]
+    " Use rst's preferred format for the time:
+    call add (text, "type <project_type>")
+    call add (text, "target <cmake_target>")
+    call add (text, "build_dir <build_dir>")
+    call add (text, "cmake_options <cmake_options>")
+    call add (text, "program_arguments <program_arguments>")
+    let failed = append(0, text)
 endfunction
 
 noremap <Plug>SelectConfig :call SelectConfig()<CR>
