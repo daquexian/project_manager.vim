@@ -2,11 +2,12 @@
 
 ## Installation
 
-project_manager.vim depends on [fzf](https://github.com/junegunn/fzf) and [fzf.vim](https://github.com/junegunn/fzf.vim)
+project_manager.vim depends on [neoterm](https://github.com/kassio/neoterm), [fzf](https://github.com/junegunn/fzf) and [fzf.vim](https://github.com/junegunn/fzf.vim)
 
 If you use [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```
+Plug 'kassio/neoterm'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'daquexian/project_manager.vim
