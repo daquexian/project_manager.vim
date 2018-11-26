@@ -53,20 +53,23 @@ function! s:read_config()
         let g:cpp_project_props['binary'] = get(s:props, 'binary', '')
 
         let s:escaped_cd = s:escape_for_texec('mkdir -p ' . g:cpp_project_props['build_dir'] . ' && cd ' . g:cpp_project_props['build_dir'])
+        let s:cmake_opts = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
+        let s:cmake_build = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
+        let s:binary_commands = g:cpp_project_props['binary']
         function! g:Build()
-            let l:escaped_cmake_opts = s:escape_for_texec('cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..')
-            let l:escaped_cmake_build = s:escape_for_texec('cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)')
+            let l:escaped_cmake_commands = s:escape_for_texec(s:cmake_opts . ' && ' . s:cmake_build)
             call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_cmake_opts . ' ' . l:escaped_cmake_build
+            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_cmake_commands
         endfunction
         function! g:Run()
-            let l:escaped_binary_com = s:escape_for_texec(g:cpp_project_props['binary'])
+            let l:escaped_binary_com = s:escape_for_texec(s:binary_commands)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_binary_com
         endfunction
         function! g:BuildAndRun()
-            call g:Build()
-            call g:Run()
+            let l:escaped_commands = s:escape_for_texec(s:cmake_opts . ' && ' . s:cmake_build . ' && ' . s:binary_commands)
+            call s:open_build_run_term()
+            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
         noremap <Plug>Build :call Build()<CR>
         noremap <Plug>Run :call Run()<CR>
