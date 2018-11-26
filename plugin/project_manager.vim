@@ -55,7 +55,7 @@ function! s:read_config()
         let s:escaped_cd = s:escape_for_texec('mkdir -p ' . g:cpp_project_props['build_dir'] . ' && cd ' . g:cpp_project_props['build_dir'])
         function! g:Build()
             let l:escaped_cmake_opts = s:escape_for_texec('cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..')
-            let l:escaped_cmake_build = s:escape_for_texec('cmake --build . --target ' . g:cpp_project_props['target'])
+            let l:escaped_cmake_build = s:escape_for_texec('cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)')
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_cmake_opts . ' ' . l:escaped_cmake_build
         endfunction
