@@ -73,6 +73,9 @@ function! s:read_config()
         noremap <Plug>BuildAndRun :call BuildAndRun()<CR>
     endif
 
+    if exists("*g:ConfigCallback")
+        call g:ConfigCallback()
+    endif
 endfunction
 
 function! s:select_handler(line)
