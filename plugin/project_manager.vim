@@ -56,21 +56,27 @@ function! s:read_config()
         let s:cmake_opts = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
         let s:cmake_build = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
         let s:binary_commands = g:cpp_project_props['binary']
-        function! g:Build()
-            let l:escaped_cmake_commands = s:escape_for_texec(s:cmake_opts . ' && ' . s:cmake_build)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_cmake_commands
-        endfunction
-        function! g:Run()
-            let l:escaped_binary_com = s:escape_for_texec(s:binary_commands)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_binary_com
-        endfunction
-        function! g:BuildAndRun()
-            let l:escaped_commands = s:escape_for_texec(s:cmake_opts . ' && ' . s:cmake_build . ' && ' . s:binary_commands)
+        function! g:Prepare()
+            let l:escaped_commands = s:escape_for_texec(s:cmake_opts)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
+        function! g:Build()
+            let l:escaped_commands = s:escape_for_texec(s:cmake_build)
+            call s:open_build_run_term()
+            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+        endfunction
+        function! g:Run()
+            let l:escaped_commands = s:escape_for_texec(s:binary_commands)
+            call s:open_build_run_term()
+            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+        endfunction
+        function! g:BuildAndRun()
+            let l:escaped_commands = s:escape_for_texec(s:cmake_build . ' && ' . s:binary_commands)
+            call s:open_build_run_term()
+            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+        endfunction
+        noremap <Plug>Prepare :call Prepare()<CR>
         noremap <Plug>Build :call Build()<CR>
         noremap <Plug>Run :call Run()<CR>
         noremap <Plug>BuildAndRun :call BuildAndRun()<CR>
@@ -132,3 +138,7 @@ noremap <Plug>OpenConfig :call OpenConfig()<CR>
 call s:read_config()
 command! -nargs=1 Saveconf call SaveConfig(<f-args>)
 command! Newconf call NewConfig()
+command! Prepare call Prepare()
+command! Build call Build()
+command! BR call BuildAndRun()
+command! Run call Run()
