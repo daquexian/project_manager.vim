@@ -35,7 +35,9 @@ function! s:read_config()
     let s:props = {}
     for s:line in s:lines
         let s:kv = split(s:line)
-        let s:props[s:kv[0]] = join(s:kv[1:], ' ')
+        if len(s:kv) >= 2
+            let s:props[s:kv[0]] = join(s:kv[1:], ' ')
+        endif
     endfor
     let g:project_name = s:props['name']
     let g:project_type = s:props['type']
@@ -53,26 +55,26 @@ function! s:read_config()
         let g:cpp_project_props['binary'] = get(s:props, 'binary', '')
 
         let s:escaped_cd = s:escape_for_texec('mkdir -p ' . g:cpp_project_props['build_dir'] . ' && cd ' . g:cpp_project_props['build_dir'])
-        let s:cmake_opts = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
-        let s:cmake_build = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
-        let s:binary_commands = g:cpp_project_props['binary']
+        let s:prepare_coms = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
+        let s:build_coms = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
+        let s:binary_coms = g:cpp_project_props['binary']
         function! g:Prepare()
-            let l:escaped_commands = s:escape_for_texec(s:cmake_opts)
+            let l:escaped_commands = s:escape_for_texec(s:prepare_coms)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
         function! g:Build()
-            let l:escaped_commands = s:escape_for_texec(s:cmake_build)
+            let l:escaped_commands = s:escape_for_texec(s:build_coms)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
         function! g:Run()
-            let l:escaped_commands = s:escape_for_texec(s:binary_commands)
+            let l:escaped_commands = s:escape_for_texec(s:binary_coms)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
         function! g:BuildAndRun()
-            let l:escaped_commands = s:escape_for_texec(s:cmake_build . ' && ' . s:binary_commands)
+            let l:escaped_commands = s:escape_for_texec(s:build . ' && ' . s:binary_coms)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
