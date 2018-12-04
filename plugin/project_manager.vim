@@ -74,7 +74,7 @@ function! s:read_config()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
         function! g:BuildAndRun()
-            let l:escaped_commands = s:escape_for_texec(s:build . ' && ' . s:binary_coms)
+            let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
             call s:open_build_run_term()
             execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
         endfunction
