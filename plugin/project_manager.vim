@@ -111,10 +111,10 @@ function! g:OpenConfig()
                 \ 'sink': 'e'})
 endfunction
 
-function! g:SaveConfig(filename)
-    call mkdir(s:config_dir, 'p')
+function! g:CopyConfig(filename)
     let fn = s:config_dir . '/' . a:filename
     execute 'w ' . fn
+    execute 'e ' . fn
 endfunction
 
 " NewConfig is still wip
@@ -138,8 +138,8 @@ noremap <Plug>NewConfig :call NewConfig()<CR>
 noremap <Plug>OpenConfig :call OpenConfig()<CR>
 
 call s:read_config()
-command! -nargs=1 Saveconf call SaveConfig(<f-args>)
 command! Newconf call NewConfig()
+command! -nargs=1 Copyconf call CopyConfig(<f-args>)
 command! Prepare call Prepare()
 command! Build call Build()
 command! BR call BuildAndRun()
