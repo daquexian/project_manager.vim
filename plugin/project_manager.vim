@@ -19,9 +19,9 @@ function! s:open_build_run_term()
     endif
 endfunction
 
-function! s:read_config()
+function! s:update_config()
     if !filereadable(s:status_file)
-        return
+        return 1
     endif
     let s:lines = readfile(s:status_file)
     let s:status_props = {}
@@ -29,7 +29,7 @@ function! s:read_config()
         let s:config_file = s:config_dir . s:line
     endfor
     if !filereadable(s:config_file)
-        return
+        return -1
     endif
     let s:lines = readfile(s:config_file)
     let s:props = {}
@@ -58,35 +58,40 @@ function! s:read_config()
         let s:prepare_coms = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
         let s:build_coms = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
         let s:binary_coms = g:cpp_project_props['binary']
-        function! g:Prepare()
-            let l:escaped_commands = s:escape_for_texec(s:prepare_coms)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
-        endfunction
-        function! g:Build()
-            let l:escaped_commands = s:escape_for_texec(s:build_coms)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
-        endfunction
-        function! g:Run()
-            let l:escaped_commands = s:escape_for_texec(s:binary_coms)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
-        endfunction
-        function! g:BuildAndRun()
-            let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
-            call s:open_build_run_term()
-            execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
-        endfunction
         noremap <Plug>Prepare :call Prepare()<CR>
         noremap <Plug>Build :call Build()<CR>
         noremap <Plug>Run :call Run()<CR>
         noremap <Plug>BuildAndRun :call BuildAndRun()<CR>
     endif
+endfunction
 
-    if exists("*g:ConfigCallback")
+function! s:read_config()
+    let ret =  s:update_config()
+
+    if ret == 0 && exists("*g:ConfigCallback")
         call g:ConfigCallback()
     endif
+endfunction
+
+function! g:Prepare()
+    let l:escaped_commands = s:escape_for_texec(s:prepare_coms)
+    call s:open_build_run_term()
+    execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+endfunction
+function! g:Build()
+    let l:escaped_commands = s:escape_for_texec(s:build_coms)
+    call s:open_build_run_term()
+    execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+endfunction
+function! g:Run()
+    let l:escaped_commands = s:escape_for_texec(s:binary_coms)
+    call s:open_build_run_term()
+    execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
+endfunction
+function! g:BuildAndRun()
+    let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
+    call s:open_build_run_term()
+    execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
 endfunction
 
 function! s:select_handler(line)
@@ -118,11 +123,12 @@ function! g:CopyConfig(filename)
 endfunction
 
 " NewConfig is still wip
-function! g:NewConfig()
+function! g:NewConfig(filename)
     call mkdir(s:config_dir, 'p')
     call mkdir(s:status_dir, 'p')
 
-    enew
+    let fn = s:config_dir . '/' . a:filename
+    execute 'e ' . fn
     let text  = ["name <project_name>"]
     call add (text, "type <project_type>")
     call add (text, "target <cmake_target>")
@@ -138,7 +144,7 @@ noremap <Plug>NewConfig :call NewConfig()<CR>
 noremap <Plug>OpenConfig :call OpenConfig()<CR>
 
 call s:read_config()
-command! Newconf call NewConfig()
+command! -nargs=1 Newconf call NewConfig(<f-args>)
 command! -nargs=1 Copyconf call CopyConfig(<f-args>)
 command! Prepare call Prepare()
 command! Build call Build()
