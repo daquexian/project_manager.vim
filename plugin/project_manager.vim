@@ -79,16 +79,19 @@ function! g:Prepare()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
 endfunction
 function! g:Build()
+    call s:update_config()
     let l:escaped_commands = s:escape_for_texec(s:build_coms)
     call s:open_build_run_term()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
 endfunction
 function! g:Run()
+    call s:update_config()
     let l:escaped_commands = s:escape_for_texec(s:binary_coms)
     call s:open_build_run_term()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
 endfunction
 function! g:BuildAndRun()
+    call s:update_config()
     let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
     call s:open_build_run_term()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
