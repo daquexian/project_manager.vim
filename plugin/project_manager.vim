@@ -74,6 +74,7 @@ function! s:read_config()
 endfunction
 
 function! g:Prepare()
+    call s:update_config()
     let l:escaped_commands = s:escape_for_texec(s:prepare_coms)
     call s:open_build_run_term()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
