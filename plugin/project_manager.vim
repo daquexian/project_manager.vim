@@ -93,7 +93,11 @@ function! g:Run()
 endfunction
 function! g:BuildAndRun()
     call s:update_config()
-    let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
+    if s:binary_coms == ''
+        let l:escaped_commands = s:escape_for_texec(s:build_coms)
+    else
+        let l:escaped_commands = s:escape_for_texec(s:build_coms . ' && ' . s:binary_coms)
+    endif
     call s:open_build_run_term()
     execute 'bo Texec ' . s:escaped_cd . ' ' . l:escaped_commands
 endfunction
@@ -133,7 +137,8 @@ function! g:NewConfig(filename)
 
     let fn = s:config_dir . '/' . a:filename
     execute 'e ' . fn
-    let text  = ["name <project_name>"]
+    let text  = ["# Configuration for [project_manager.vim](https://github.com/daquexian/project_manager.vim)"]
+    call add (text, "name <project_name>")
     call add (text, "type <project_type>")
     call add (text, "target <cmake_target>")
     call add (text, "build_dir <build_dir>")
