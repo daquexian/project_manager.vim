@@ -138,12 +138,13 @@ function! g:NewConfig(filename)
     let fn = s:config_dir . '/' . a:filename
     execute 'e ' . fn
     let text  = ["# Configuration for [project_manager.vim](https://github.com/daquexian/project_manager.vim)"]
-    call add (text, "name <project_name>")
-    call add (text, "type <project_type>")
-    call add (text, "target <cmake_target>")
-    call add (text, "build_dir <build_dir>")
-    call add (text, "cmake_options <cmake_options>")
-    call add (text, "program_arguments <program_arguments>")
+    let dir_name = fnamemodify(getcwd(), ':t')
+    call add (text, "name ".dir_name)
+    call add (text, "type cpp")
+    call add (text, "target all")
+    call add (text, "build_dir build")
+    call add (text, "cmake_options ")
+    call add (text, "binary ")
     let failed = append(0, text)
 endfunction
 
