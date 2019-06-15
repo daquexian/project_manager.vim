@@ -2,6 +2,26 @@ if exists("g:project_name")
     finish
 endif
 
+function! s:core_num() 
+    if !empty($NUMBER_OF_PROCESSORS)
+        " this works on Windows and provides a convenient override mechanism otherwise
+        let n = $NUMBER_OF_PROCESSORS + 0
+    elseif filereadable('/proc/cpuinfo')
+        " this works on most Linux systems
+        let n = system('grep -c ^processor /proc/cpuinfo') + 0
+    elseif executable('/usr/sbin/sysctl')
+        " this works on macOS
+        let n = system('sysctl -n hw.ncpu')
+    elseif executable('/usr/sbin/psrinfo')
+        " this works on Solaris
+        let n = system('/usr/sbin/psrinfo -p')
+    else
+        " default to single process if we can't figure it out automatically
+        let n = 1
+    endif
+    return n
+endfunction
+
 let s:cwd = getcwd()
 let s:config_dir = s:cwd . '/.daq_pm/configs/'
 let s:status_dir = s:cwd . '/.daq_pm/status/'
@@ -56,7 +76,7 @@ function! s:update_config()
 
         let s:escaped_cd = s:escape_for_texec('mkdir -p ' . g:cpp_project_props['build_dir'] . ' && cd ' . g:cpp_project_props['build_dir'])
         let s:prepare_coms = 'cmake ' . '-DCMAKE_BUILD_TYPE=' . g:cpp_project_props['build_type'] . ' ' . g:cpp_project_props['cmake_options'] . ' ..'
-        let s:build_coms = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j$(nproc)'
+        let s:build_coms = 'cmake --build . --target ' . g:cpp_project_props['target'] . ' -- -j' . s:core_num()
         let s:binary_coms = g:cpp_project_props['binary']
         noremap <Plug>Prepare :call Prepare()<CR>
         noremap <Plug>Build :call Build()<CR>
